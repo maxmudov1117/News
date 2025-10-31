@@ -8,7 +8,10 @@ from main.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', HomeView.as_view(), name='home')
+    path('', HomeView.as_view(), name='home'),
+    path('category/<slug:slug>/', CategoryView.as_view(), name='category'),
+    path('article/<slug:slug>/', ArticleDetailsView.as_view(), name='article-details'),
+    path('contact', ContactView.as_view(), name='contact'),
 ]
 
 if settings.DEBUG:

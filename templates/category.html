@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="uz">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Articlelar ro'yxati</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root{--card-radius:16px}
+    body{background:#f6f7fb;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
+    .card-article{border-radius:var(--card-radius);box-shadow:0 6px 18px rgba(20,30,60,0.06);overflow:hidden}
+    .article-img{height:160px;object-fit:cover;width:100%}
+    .tag{font-size:12px;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#3b2cc5}
+    .meta{font-size:13px;color:#6b7280}
+    .excerpt{color:#374151}
+    .search-input{max-width:520px}
+    .stats span{display:inline-flex;align-items:center;gap:6px;margin-right:12px;font-size:13px;color:#6b7280}
+    @media (min-width:992px){.article-img{height:180px}}
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="#">Articles</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Bosh sahifa</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Kontakt</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <header class="py-5">
+    <div class="container">
+      <div class="d-flex align-items-center justify-content-between gap-3">
+        <div>
+          <h1 class="h3 mb-1">So'nggi maqolalar</h1>
+          <p class="text-muted mb-0">Yangiliklar, maqolalar va qo'llanmalar ro'yxati.</p>
+        </div>
+        <div class="ms-auto">
+          <input id="search" class="form-control search-input" placeholder="Maqola yoki tag bo'yicha qidirish..." />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container mb-5">
+    <div class="row g-4" id="articles">
+
+      <!-- Article card -->
+      <div class="col-12 col-md-6 col-lg-4 article-item" data-title="Djangoda NoReverseMatch xatosi" data-tags="django,python">
+          {% for article in articles %}
+            <div class="card card-article h-100">
+              <img src="{{ article.cover.url }}" class="article-img" alt="img">
+              <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    {% for tag in article.tag.all %}
+                        <span class="tag">#{{ tag.name }}</span>
+                    {% endfor %}
+                    <small class="meta"><i class="bi bi-calendar-event"></i> {{ article.created_at|date:"d.m.Y" }}</small>
+                </div>
+                  <a href="{% url 'article-details' article.slug %}" style="text-decoration: none;" ><h5 class="card-title">{{ article.title|truncatechars:40 }}</h5></a>
+                <p class="excerpt mb-3">{{ article.intro|truncatechars:70 }}</p>
+                <div class="stats mb-3">
+                  <span><i class="bi bi-eye"></i> {{ article.views }} ta ko'rildi</span>
+                  <span><i class="bi bi-clock-history"></i> {{ article.read_time }} minut </span>
+                  <span><i class="bi bi-chat-left-text"></i> {{ article.comment_set.all.count }}</span>
+                </div>
+                <div class="mt-auto d-flex justify-content-between align-items-center">
+                  <div class="text-muted"><i class="bi bi-person"></i> {{ article.author }}</div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+      </div>
+
+      <!-- Shu formatda boshqa maqolalar ham qo'shiladi -->
+
+    </div>
+  </main>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const searchInput = document.getElementById('search');
+    searchInput.addEventListener('input', ()=>{
+      const q = searchInput.value.trim().toLowerCase();
+      document.querySelectorAll('.article-item').forEach(item=>{
+        const title = item.dataset.title.toLowerCase();
+        const tags = item.dataset.tags.toLowerCase();
+        if(!q || title.includes(q) || tags.includes(q)) item.style.display = '';
+        else item.style.display = 'none';
+      });
+    });
+
+    function openArticle(e, el){
+      e.preventDefault();
+      const card = el.closest('.article-item');
+      const title = card.dataset.title;
+      const img = card.querySelector('.article-img').src;
+      const meta = card.querySelector('.meta').innerText;
+      const excerpt = card.querySelector('.excerpt').innerText + '\n\n(To‘liq maqola matni shu yerda bo‘ladi.)';
+
+      document.getElementById('modalTitle').innerText = title;
+      document.getElementById('modalImg').src = img;
+      document.getElementById('modalMeta').innerText = meta;
+      document.getElementById('modalText').innerText = excerpt;
+
+      new bootstrap.Modal(document.getElementById('articleModal')).show();
+    }
+  </script>
+</body>
+</html>

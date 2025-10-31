@@ -54,6 +54,7 @@ class ContextAdmin(admin.ModelAdmin):
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('id','text', 'author', 'email', 'published', 'created_at', )
     search_fields = ('text', 'email','author')
+    list_editable = ('published',)
     list_filter = ('author', 'email',)
 
 @admin.register(Contact)
